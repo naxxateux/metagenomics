@@ -3,12 +3,11 @@ app.directive 'customSelect', ($document, $timeout) ->
   replace: true
   templateUrl: 'templates/directives/custom-select.html'
   scope:
-    key: '='
     dataset: '='
     multi: '='
     toggleFormat: '='
     disabled: '='
-    filterValues: '='
+    selected: '='
   link: ($scope, $element, $attrs) ->
     $scope.isListShown = true
 
@@ -25,21 +24,20 @@ app.directive 'customSelect', ($document, $timeout) ->
 
     $scope.isItemSelected = (item) ->
       if $scope.multi
-        index = _.indexOf _.pluck($scope.filterValues[$scope.key], 'title'), item.title
-        index isnt -1
+        _.indexOf(_.pluck($scope.selected, 'title'), item.title) isnt -1
       else
-        $scope.filterValues[$scope.key].title is item.title
+        $scope.selected.title is item.title
 
     $scope.selectItem = (item) ->
       if $scope.multi
-        index = _.indexOf _.pluck($scope.filterValues[$scope.key], 'title'), item.title
+        index = _.indexOf _.pluck($scope.selected, 'title'), item.title
 
         if index isnt -1
-          $scope.filterValues[$scope.key].splice index, 1
+          $scope.selected.splice index, 1
         else
-          $scope.filterValues[$scope.key].push item
+          $scope.selected.push item
       else
-        $scope.filterValues[$scope.key] = item
+        $scope.selected = item
         $scope.isListShown = false
       return
 
@@ -58,7 +56,7 @@ app.directive 'customSelect', ($document, $timeout) ->
 
     $scope.$watch 'disabled', ->
       if $scope.disabled
-        $scope.filterValues[$scope.key] = $scope.dataset[0]
+        $scope.selected = $scope.dataset[0]
       return
 
     return

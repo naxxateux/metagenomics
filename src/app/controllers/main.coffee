@@ -1,4 +1,5 @@
 app.controller 'mainCtrl', ($scope, $timeout) ->
+  json = d3.json
   tsv = d3.tsv
 
   colors = [
@@ -18,16 +19,16 @@ app.controller 'mainCtrl', ($scope, $timeout) ->
   $scope.initializing = true
 
   $scope.data =
-    samples: []
-    resistances: []
-    antibiotics: []
-    genders: []
-    ages: []
-    countries: []
-    diagnosis: []
+    samples: {}
+    substances: {}
 
-  $scope.filters = []
-  $scope.filterValues = {}
+  $scope.resistanceFilter = {}
+  $scope.substanceFilters = []
+  $scope.sampleFilters = []
+
+  $scope.resistance = undefined
+  $scope.substance = undefined
+  $scope.filteredSamples = []
 
   $scope.barChart = {}
 
@@ -38,27 +39,13 @@ app.controller 'mainCtrl', ($scope, $timeout) ->
 
   $scope.colorScale = d3.scale.ordinal().range colors
 
-  $scope.filteredSamples = []
-
   parseData = (error, rawData) ->
     if error
       console.log error
 
-    samplesData = rawData[0]
-    samplesAntibioticsData = rawData[1]
+    $scope.data.substances = rawData[0]['categories']
 
-    samplesData.forEach (sD) ->
-      sample = sD
-      sample['antibiotic resistance'] = samplesAntibioticsData
-      .filter (sAd) ->
-        sAd['sample'] is sample['names']
-      .map (f) ->
-        'category': f['AB_category']
-        'sum_abund': parseFloat f['sum_abund']
-
-      $scope.data.samples.push sample
-      return
-
+    ###
     $scope.data.resistances = ['antibiotic resistance']
     $scope.data.antibiotics = _.uniq(_.pluck(samplesAntibioticsData, 'AB_category')).sort()
     $scope.data.bacteria = []
@@ -141,6 +128,7 @@ app.controller 'mainCtrl', ($scope, $timeout) ->
       'diagnosis': _.find($scope.filters, {'key': 'diagnosis'}).dataset[0]
       'country': _.find($scope.filters, {'key': 'country'}).dataset[0]
       'cohorts': _.find($scope.filters, {'key': 'cohorts'}).dataset[0]
+    ###
 
     $scope.initializing = false
 
@@ -150,10 +138,11 @@ app.controller 'mainCtrl', ($scope, $timeout) ->
     return
 
   queue()
-  .defer tsv, '../data/samples_description.tsv'
-  .defer tsv, '../data/per_sample_antibiotic_groups_stat.tsv'
+  .defer json, '../data/group_description.json'
+  .defer tsv, '../data/per_sample_groups_stat.tsv'
   .awaitAll parseData
 
+  ###
   $scope.$watch 'filterValues["resistance"]', ->
     substances = []
 
@@ -171,5 +160,6 @@ app.controller 'mainCtrl', ($scope, $timeout) ->
       (if $scope.filterValues['diagnosis'].value then s['diagnosis'] is $scope.filterValues['diagnosis'].value else true)
     return
   , true
+  ###
 
   return

@@ -11,7 +11,6 @@
     "angular": "~1.4.7",
     "angular-route": "~1.4.7",
     "lodash": "~3.10.1",
-    "queue-async": "~1.0.7",
-    "ng-scrollbar": "~0.0.8"
+    "queue-async": "~1.0.7"
   }
 }
